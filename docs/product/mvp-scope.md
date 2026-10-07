@@ -8,6 +8,22 @@ Ghassalny MVP proves that customers can discover petrol station car washes and r
 
 The MVP should be useful with one pilot operator and a small number of branches before marketplace scale, payments, loyalty, or paid infrastructure are introduced.
 
+## Product Reference
+
+The customer experience is modelled on court-booking apps such as PadelFinder: open the app, see nearby venues on a map or in a list with availability shown up front, and book a time slot in a few taps. Ghassalny applies the same pattern to car washes.
+
+Patterns to keep:
+
+- Map and list views of the same nearby results, with a toggle between them.
+- Every branch card shows the next available slot and a starting price, so customers can decide without opening each branch.
+- Booking takes three steps: service, time slot, confirm.
+- Customers can browse without an account. Sign-in is asked for only at booking.
+- A Bookings tab with upcoming bookings first.
+
+Patterns deferred or not applicable: in-app payments (pay at the station for now), partner matching and tournaments (padel-specific), and social features.
+
+The customer app ships on iOS first. See [iOS App Store readiness](ios-app-store-readiness.md).
+
 ## In Scope
 
 - Customer account creation and login.
@@ -52,4 +68,3 @@ Run a controlled pilot with one car wash operator and one to three branches in C
 - Admin setup for a new branch can be completed without database edits.
 - Double-booking is prevented at the service layer and database boundary.
 - The product can run locally without paid infrastructure.
-

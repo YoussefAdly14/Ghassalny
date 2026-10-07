@@ -77,4 +77,3 @@ Practical rules:
 - Repositories hide database queries.
 - Shared packages expose stable contracts, not app internals.
 - Each module should be understandable in isolation.
-

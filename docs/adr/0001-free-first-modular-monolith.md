@@ -72,4 +72,3 @@ Tradeoffs:
 ## Review Trigger
 
 Revisit this decision when Ghassalny has multiple paying operators, production hosting, and clear scale pressure that cannot be handled inside one backend app.
-

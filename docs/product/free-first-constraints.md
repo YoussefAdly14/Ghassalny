@@ -97,4 +97,3 @@ Paid services become reasonable when one of these is true:
 - Booking volume makes manual reminders unreliable.
 - Customer acquisition requires map search beyond stored branch data.
 - Commercial buyers require managed backups, audit logs, SSO, or analytics.
-

@@ -130,4 +130,3 @@ Primary permissions:
 - Arabic and right-to-left support should be planned, but full localization can follow the MVP foundation.
 - Branch coordinates can be collected manually at first instead of relying on paid geocoding APIs.
 - Cash or on-site payment is assumed for MVP; online payments are deferred.
-

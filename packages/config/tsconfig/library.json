@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Ghassalny platform-neutral library",
+  "extends": "./base.json"
+}

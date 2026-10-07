@@ -25,4 +25,3 @@ What gets easier, what gets harder, and what risks remain?
 ## Review Trigger
 
 What future event should cause this decision to be revisited?
-

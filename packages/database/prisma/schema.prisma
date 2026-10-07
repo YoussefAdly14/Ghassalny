@@ -1,0 +1,18 @@
+// Ghassalny database schema.
+//
+// Tenant boundary: every business-facing record (branches, services, working hours, availability
+// blocks, staff assignments, bookings) must resolve to an Organization. Customers and platform
+// admins are global users. See docs/architecture/architecture-overview.md.
+//
+// Domain models are added by the GHA-32 to GHA-39 issues. Enum values must stay in sync with
+// packages/shared.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}

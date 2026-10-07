@@ -1,0 +1,21 @@
+{
+  "name": "@ghassalny/config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared constants, typed environment parsing, and TypeScript base configs.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./tsconfig/*.json": "./tsconfig/*.json"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3"
+  }
+}

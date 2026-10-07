@@ -1,0 +1,12 @@
+packages:
+  - apps/*
+  - packages/*
+
+# React Native and Expo resolve native modules most reliably from a flat
+# node_modules tree. See docs/development/workspace-conventions.md.
+nodeLinker: hoisted
+
+# Dependencies allowed to run install scripts. pnpm blocks all others by default.
+allowBuilds:
+  '@prisma/engines': true
+  prisma: true
