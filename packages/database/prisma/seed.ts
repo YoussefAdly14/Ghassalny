@@ -27,6 +27,7 @@ const TABLES = [
   'station_brands',
   'vehicles',
   'user_role_assignments',
+  'auth_sessions',
   'users',
   'organizations',
 ];

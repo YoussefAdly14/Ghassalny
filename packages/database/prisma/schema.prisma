@@ -105,6 +105,7 @@ model User {
   createdBookings  Booking[]               @relation("BookingCreatedBy")
   statusChanges    BookingStatusHistory[]
   createdBlocks    AvailabilityBlock[]
+  authSessions     AuthSession[]
 
   @@map("users")
 }
@@ -125,6 +126,24 @@ model UserRoleAssignment {
   @@unique([userId, role, organizationId])
   @@index([organizationId, role])
   @@map("user_role_assignments")
+}
+
+/// A signed-in device. Holds the SHA-256 hash of the current refresh token (never the token).
+/// Revoked on logout and account deletion. See docs/adr/0003-free-first-authentication.md.
+model AuthSession {
+  id               String    @id @default(uuid(7)) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  refreshTokenHash String    @unique @map("refresh_token_hash")
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(3)
+  lastUsedAt       DateTime  @default(now()) @map("last_used_at") @db.Timestamptz(3)
+  userAgent        String?   @map("user_agent")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("auth_sessions")
 }
 
 // ---------------------------------------------------------------------------------------------

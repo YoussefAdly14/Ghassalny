@@ -6,28 +6,28 @@ Customers find nearby petrol station car washes, compare services, and book avai
 
 ## Current Phase
 
-Foundation. The monorepo, shared packages, and local database are in place. Next up: the domain model (GHA-7), then auth (GHA-8) and the booking engine (GHA-9).
+Foundation. The monorepo, multi-tenant database, and API are in place, along with sign-in, role and tenant access control, and the slot-generation engine. Next up: booking endpoints (GHA-52 to GHA-57), then the customer iOS app (GHA-10).
 
 ## Stack
 
-| Area                  | Choice                                                                                                                 |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Language              | TypeScript 6 everywhere                                                                                                |
-| Repository            | pnpm workspaces and Turborepo ([ADR 0002](docs/adr/0002-pnpm-turborepo-workspace.md))                                  |
-| Backend               | Node.js modular monolith ([ADR 0001](docs/adr/0001-free-first-modular-monolith.md)), framework chosen at scaffold time |
-| Customer app          | Expo React Native, **iOS first**                                                                                       |
-| Admin and worker web  | Next.js                                                                                                                |
-| Database              | PostgreSQL 17 (Docker) with Prisma 7                                                                                   |
-| Validation and config | Zod                                                                                                                    |
-| Maps                  | Stored coordinates and free map rendering (Apple Maps on iOS); paid providers deferred                                 |
-| Auth                  | App-owned email and password with JWT or secure sessions                                                               |
-| Payments              | Out of scope for MVP; customers pay at the station                                                                     |
+| Area                  | Choice                                                                                                                                               |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Language              | TypeScript 6 everywhere                                                                                                                              |
+| Repository            | pnpm workspaces and Turborepo ([ADR 0002](docs/adr/0002-pnpm-turborepo-workspace.md))                                                                |
+| Backend               | Fastify 5 modular monolith ([ADR 0001](docs/adr/0001-free-first-modular-monolith.md), [ADR 0004](docs/adr/0004-fastify-api-framework.md))            |
+| Customer app          | Expo React Native, **iOS first**                                                                                                                     |
+| Admin and worker web  | Next.js                                                                                                                                              |
+| Database              | PostgreSQL 17 (Docker) with Prisma 7                                                                                                                 |
+| Validation and config | Zod                                                                                                                                                  |
+| Maps                  | Stored coordinates and free map rendering (Apple Maps on iOS); paid providers deferred                                                               |
+| Auth                  | Email and password, scrypt hashing, 15-minute JWT access tokens and rotating refresh tokens ([ADR 0003](docs/adr/0003-free-first-authentication.md)) |
+| Payments              | Out of scope for MVP; customers pay at the station                                                                                                   |
 
 ## Repository Layout
 
 ```
 apps/
-  api/          Backend API (placeholder)
+  api/          Backend API (Fastify): auth, access control, availability engine
   admin-web/    Next.js admin and worker app (placeholder)
   mobile/       Expo customer iOS app (placeholder)
 packages/
@@ -78,6 +78,9 @@ Architecture
 - [Architecture Overview](docs/architecture/architecture-overview.md)
 - [ADR 0001: Free-First Modular Monolith](docs/adr/0001-free-first-modular-monolith.md)
 - [ADR 0002: pnpm Workspaces with Turborepo](docs/adr/0002-pnpm-turborepo-workspace.md)
+- [ADR 0003: Free-First Authentication](docs/adr/0003-free-first-authentication.md)
+- [ADR 0004: Fastify for the API](docs/adr/0004-fastify-api-framework.md)
+- [Booking Engine Invariants](docs/architecture/booking-engine-invariants.md)
 - [ADR Template](docs/adr/template.md)
 
 Development

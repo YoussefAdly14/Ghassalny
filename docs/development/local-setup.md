@@ -63,12 +63,12 @@ Default development credentials: user `ghassalny`, password `ghassalny_dev_passw
 
 The apps are scaffolded by later Linear issues. These are the planned commands:
 
-| App              | Command                                  | URL                     | Scaffolded by |
-| ---------------- | ---------------------------------------- | ----------------------- | ------------- |
-| API              | `pnpm --filter @ghassalny/api dev`       | `http://localhost:4000` | Planned       |
-| Admin web        | `pnpm --filter @ghassalny/admin-web dev` | `http://localhost:3000` | GHA-76        |
-| Customer iOS app | `pnpm --filter @ghassalny/mobile dev`    | Expo dev server         | GHA-58        |
-| Everything       | `pnpm dev`                               |                         |               |
+| App              | Command                                  | URL                     | Scaffolded by  |
+| ---------------- | ---------------------------------------- | ----------------------- | -------------- |
+| API              | `pnpm --filter @ghassalny/api dev`       | `http://localhost:4000` | GHA-107 (done) |
+| Admin web        | `pnpm --filter @ghassalny/admin-web dev` | `http://localhost:3000` | GHA-76         |
+| Customer iOS app | `pnpm --filter @ghassalny/mobile dev`    | Expo dev server         | GHA-58         |
+| Everything       | `pnpm dev`                               |                         |                |
 
 ## iOS development
 

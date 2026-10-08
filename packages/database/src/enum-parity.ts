@@ -13,4 +13,5 @@ export type EnumParity = [
   Assert<Equal<Db.BookingSource, Shared.BookingSource>>,
   Assert<Equal<Db.VehicleType, Shared.VehicleType>>,
   Assert<Equal<Db.Locale, SupportedLocale>>,
+  Assert<Equal<Db.Locale, Shared.SupportedLocaleCode>>,
 ];
