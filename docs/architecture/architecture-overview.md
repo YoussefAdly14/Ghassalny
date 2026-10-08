@@ -47,6 +47,26 @@ The first schema should make tenant leakage hard by design:
 - Bookings belong to a branch and organization.
 - Admin queries must include organization scope.
 
+This is implemented in [`packages/database/prisma/schema.prisma`](../../packages/database/prisma/schema.prisma). Branch services, working hours, availability blocks, staff assignments, and bookings reference their branch and service through composite foreign keys on `(id, organization_id)`. PostgreSQL therefore rejects any row that links records from two different organizations.
+
+### Data model
+
+| Table                      | Tenant-scoped          | Purpose                                                   |
+| -------------------------- | ---------------------- | --------------------------------------------------------- |
+| `organizations`            | (the tenant)           | Car wash operators                                        |
+| `users`                    | No                     | Everyone who signs in                                     |
+| `user_role_assignments`    | Worker and admin roles | Role grants; tenant roles must name an organization       |
+| `vehicles`                 | No                     | Customer cars, soft-deleted                               |
+| `station_brands`           | No                     | Petrol station brands (platform catalog)                  |
+| `branches`                 | Yes                    | Wash locations with coordinates, bays, and time zone      |
+| `branch_staff_assignments` | Yes                    | Which workers operate which branch                        |
+| `services`                 | Yes                    | The operator's service catalog                            |
+| `branch_services`          | Yes                    | Price and duration of a service at a branch               |
+| `branch_working_hours`     | Yes                    | Weekly opening intervals in local time                    |
+| `availability_blocks`      | Yes                    | Closures and maintenance windows                          |
+| `bookings`                 | Yes                    | Reserved slots with price, contact, and vehicle snapshots |
+| `booking_status_history`   | Through booking        | Append-only status change log                             |
+
 ## Booking Engine Boundary
 
 The booking engine is a core product asset and should not be scattered across controllers or UI code.
@@ -65,6 +85,8 @@ It does not own:
 - UI formatting.
 - Payment capture.
 - Notification delivery.
+
+The rules it must never break are listed in [Booking Engine Invariants](booking-engine-invariants.md). The most important one, no two active bookings on the same bay at the same time, is also enforced by a PostgreSQL exclusion constraint.
 
 ## Design Pattern Decisions
 

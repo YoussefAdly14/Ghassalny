@@ -15,10 +15,13 @@
     "db:migrate:status": "prisma migrate status",
     "db:studio": "prisma studio",
     "db:validate": "prisma validate",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:seed": "prisma db seed",
+    "db:reset": "prisma migrate reset && prisma db seed"
   },
   "dependencies": {
     "@ghassalny/config": "workspace:*",
+    "@ghassalny/shared": "workspace:*",
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
     "pg": "^8.16.3"
@@ -28,6 +31,7 @@
     "@types/pg": "^8.16.0",
     "dotenv": "^18.0.6",
     "prisma": "7.10.0",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.3"
   }
 }

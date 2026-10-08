@@ -9,4 +9,5 @@ nodeLinker: hoisted
 # Dependencies allowed to run install scripts. pnpm blocks all others by default.
 allowBuilds:
   '@prisma/engines': true
+  esbuild: true
   prisma: true
