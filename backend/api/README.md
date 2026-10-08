@@ -30,7 +30,20 @@ The API listens on `0.0.0.0`, so a physical iPhone on the same Wi-Fi can reach i
 | `POST /auth/logout`   | Refresh token | Revokes the session (204)                               |
 | `GET /me`             | Access token  | Current user, roles, and assigned branches              |
 
-Request and response types live in `@ghassalny/contracts` (`RegisterCustomerRequest`, `AuthSessionResponse`, `CurrentUserResponse`, and so on). Send the access token as `Authorization: Bearer <token>`. The credential endpoints allow 10 requests per minute per IP.
+Booking engine ([invariants](../../docs/architecture/booking-engine-invariants.md)):
+
+| Method and path                                       | Auth         | Purpose                                                                          |
+| ----------------------------------------------------- | ------------ | -------------------------------------------------------------------------------- |
+| `GET /branches/:branchId/availability`                | Public       | Bookable slots for `?serviceId=&date=YYYY-MM-DD` (branch-local date)             |
+| `POST /bookings`                                      | Customer     | Book a slot for one of your vehicles (201)                                       |
+| `POST /bookings/:bookingId/cancel`                    | Customer     | Cancel your own booking up to 5 hours before it starts                           |
+| `POST /branches/:branchId/walk-ins`                   | Branch staff | Book a walk-in by name and optional phone, at any free minute, default now (201) |
+| `POST /branches/:branchId/bookings/:bookingId/status` | Branch staff | Arrived, in progress, completed, cancelled, or no-show                           |
+| `POST /branches/:branchId/availability-blocks`        | Branch staff | Block time; lists existing bookings it overlaps, without cancelling them (201)   |
+
+Branch staff means a worker assigned to that branch, a business admin of its organization, or a platform admin.
+
+Request and response types live in `@ghassalny/contracts` (`RegisterCustomerRequest`, `AuthSessionResponse`, `CreateBookingRequest`, `BookingResponse`, `AvailabilityResponse`, and so on). Send the access token as `Authorization: Bearer <token>`. The credential endpoints allow 10 requests per minute per IP.
 
 ### Error shape
 
@@ -60,7 +73,8 @@ src/
     access/            Auth context, role guards, tenant-scope helpers
     auth/              Passwords, tokens, auth service, repository, routes
     users/             GET /me
-    availability/      Slot generation engine and time-zone helpers (pure functions)
+    availability/      Slot generation, walk-in checks, and time-zone helpers (pure functions)
+    bookings/          Booking engine service, status rules, repository, and routes
     health/
   testing/             In-memory fakes and a test app factory
 ```
@@ -72,3 +86,4 @@ Module rules: routes validate and delegate, services hold business rules, reposi
 - Test files sit next to the code they test and are named `*.test.ts`.
 - Route tests use `createTestApp()` (in-memory repository, controllable clock) and `app.inject`, so they need no database or open port.
 - The availability engine is pure and tested with fixed Cairo dates, including daylight saving.
+- `InMemoryBookingRepository` mimics the database's per-bay exclusion constraint and optimistic status updates. Its `beforeInsert` hook simulates a concurrent booking winning the race. The advisory locks and constraint mapping in `PrismaBookingRepository` need a real database, so check them against local PostgreSQL after changing that file.

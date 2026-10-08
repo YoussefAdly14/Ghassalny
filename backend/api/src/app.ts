@@ -10,6 +10,9 @@ import type { AuthRepository } from './modules/auth/auth.repository';
 import { registerAuthRoutes } from './modules/auth/auth.routes';
 import { AuthService } from './modules/auth/auth.service';
 import { AccessTokenSigner } from './modules/auth/tokens';
+import type { BookingRepository } from './modules/bookings/bookings.repository';
+import { registerBookingRoutes } from './modules/bookings/bookings.routes';
+import { BookingService } from './modules/bookings/bookings.service';
 import { registerHealthRoutes } from './modules/health/health.routes';
 import { registerUserRoutes } from './modules/users/users.routes';
 
@@ -17,6 +20,7 @@ import { registerUserRoutes } from './modules/users/users.routes';
 export type AppDependencies = {
   config: ApiConfig;
   authRepository: AuthRepository;
+  bookingRepository: BookingRepository;
   checkDatabase: () => Promise<void>;
   now?: () => Date;
   logger?: FastifyServerOptions['logger'];
@@ -50,6 +54,7 @@ export async function buildApp(dependencies: AppDependencies) {
   registerHealthRoutes(app, dependencies.checkDatabase);
   registerAuthRoutes(app, authService);
   registerUserRoutes(app, guards, authService);
+  registerBookingRoutes(app, guards, new BookingService(dependencies.bookingRepository, now));
 
   return app;
 }

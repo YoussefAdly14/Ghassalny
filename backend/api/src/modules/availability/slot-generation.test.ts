@@ -1,6 +1,7 @@
 import { BookingStatus } from '@ghassalny/contracts';
 import { describe, expect, it } from 'vitest';
 import {
+  checkWalkInStart,
   freeBaysFor,
   generateSlots,
   type ExistingBooking,
@@ -222,5 +223,59 @@ describe('freeBaysFor', () => {
     ];
     expect(freeBaysFor(range([10, 0], [10, 30]), 3, bookings)).toEqual([1, 3]);
     expect(freeBaysFor(range([10, 30], [11, 30]), 3, bookings)).toEqual([1]);
+  });
+});
+
+describe('checkWalkInStart (GHA-55)', () => {
+  const walkIn = (startsAt: Date, overrides: Partial<SlotQuery> = {}) => {
+    const { timeZone, workingHours, durationMinutes, washBays, blocks, bookings } =
+      query(overrides);
+    return checkWalkInStart({
+      startsAt,
+      timeZone,
+      workingHours,
+      durationMinutes,
+      washBays,
+      blocks,
+      bookings,
+    });
+  };
+
+  it('accepts any minute inside working hours, off the slot grid', () => {
+    const check = walkIn(at(9, 7));
+    expect(check).toEqual({
+      ok: true,
+      slot: { startsAt: at(9, 7), endsAt: at(9, 37), freeBays: [1] },
+    });
+  });
+
+  it('rejects starts before opening or services that would run past closing', () => {
+    expect(walkIn(at(8, 59))).toEqual({ ok: false, reason: 'OUTSIDE_WORKING_HOURS' });
+    expect(walkIn(at(11, 31))).toEqual({ ok: false, reason: 'OUTSIDE_WORKING_HOURS' });
+    expect(walkIn(at(11, 30)).ok).toBe(true);
+  });
+
+  it('rejects walk-ins that span a split-shift break', () => {
+    const workingHours = [
+      { dayOfWeek: 'WEDNESDAY' as const, opensAtMinute: 9 * 60, closesAtMinute: 10 * 60 },
+      { dayOfWeek: 'WEDNESDAY' as const, opensAtMinute: 10 * 60 + 30, closesAtMinute: 12 * 60 },
+    ];
+    expect(walkIn(at(9, 45), { workingHours })).toEqual({
+      ok: false,
+      reason: 'OUTSIDE_WORKING_HOURS',
+    });
+  });
+
+  it('respects availability blocks and bay capacity', () => {
+    expect(walkIn(at(10, 15), { blocks: [range([10, 30], [11, 0])] })).toEqual({
+      ok: false,
+      reason: 'BLOCKED',
+    });
+    expect(walkIn(at(10, 15), { bookings: [booking([10, 0], [10, 30])] })).toEqual({
+      ok: false,
+      reason: 'NO_FREE_BAY',
+    });
+    const twoBays = walkIn(at(10, 15), { washBays: 2, bookings: [booking([10, 0], [10, 30])] });
+    expect(twoBays.ok && twoBays.slot.freeBays).toEqual([2]);
   });
 });

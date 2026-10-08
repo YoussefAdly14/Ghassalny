@@ -6,7 +6,7 @@ Customers find nearby petrol station car washes, compare services, and book avai
 
 ## Current Phase
 
-Foundation. The monorepo, multi-tenant database, and API are in place, along with sign-in, role and tenant access control, and the slot-generation engine. Next up: booking endpoints (GHA-52 to GHA-57), then the customer iOS app (GHA-10).
+Foundation. The monorepo, multi-tenant database, and API are in place, along with sign-in, role and tenant access control, and the booking engine: public availability, customer bookings and cancellation, worker walk-ins, status changes, and time blocks (GHA-49 to GHA-57). Next up: the customer iOS app (GHA-10) and the worker schedule (GHA-11).
 
 ## Stack
 

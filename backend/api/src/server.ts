@@ -3,6 +3,7 @@ import { createDatabaseClient } from '@ghassalny/database';
 import { buildApp } from './app';
 import { loadConfig } from './config';
 import { PrismaAuthRepository } from './modules/auth/auth.repository';
+import { PrismaBookingRepository } from './modules/bookings/bookings.repository';
 
 const config = loadConfig(process.env);
 const db = createDatabaseClient(process.env);
@@ -10,6 +11,7 @@ const db = createDatabaseClient(process.env);
 const app = await buildApp({
   config,
   authRepository: new PrismaAuthRepository(db),
+  bookingRepository: new PrismaBookingRepository(db),
   checkDatabase: async () => {
     await db.$queryRaw`SELECT 1`;
   },

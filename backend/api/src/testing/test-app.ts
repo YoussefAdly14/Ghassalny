@@ -1,6 +1,7 @@
 import { buildApp } from '../app';
 import type { ApiConfig } from '../config';
 import { InMemoryAuthRepository } from './in-memory-auth-repository';
+import { InMemoryBookingRepository } from './in-memory-booking-repository';
 
 export const TEST_CONFIG: ApiConfig = {
   NODE_ENV: 'test',
@@ -13,12 +14,14 @@ export const TEST_CONFIG: ApiConfig = {
 /** A fully wired app backed by in-memory fakes, with a controllable clock. */
 export async function createTestApp(options: { now?: () => Date } = {}) {
   const authRepository = new InMemoryAuthRepository();
+  const bookingRepository = new InMemoryBookingRepository(authRepository);
   const app = await buildApp({
     config: TEST_CONFIG,
     authRepository,
+    bookingRepository,
     checkDatabase: async () => {},
     now: options.now ?? (() => new Date()),
     logger: false,
   });
-  return { app, authRepository };
+  return { app, authRepository, bookingRepository };
 }

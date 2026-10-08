@@ -1,6 +1,6 @@
 import type { DayOfWeek } from '@ghassalny/database';
 import { BookingStatus } from '@ghassalny/contracts';
-import { dayOfWeekOf, zonedTimeToUtc, type LocalDate } from './zoned-time';
+import { dayOfWeekOf, localDateOf, zonedTimeToUtc, type LocalDate } from './zoned-time';
 
 // Pure slot generation for one branch, service, and local date.
 // Implements invariants 1-3 of docs/architecture/booking-engine-invariants.md. No I/O here: the
@@ -112,4 +112,44 @@ export function generateSlots(query: SlotQuery): Slot[] {
     }
   }
   return slots;
+}
+
+export type WalkInQuery = {
+  startsAt: Date;
+  timeZone: string;
+  workingHours: readonly WorkingInterval[];
+  durationMinutes: number;
+  washBays: number;
+  blocks: readonly TimeRange[];
+  bookings: readonly ExistingBooking[];
+};
+
+export type WalkInCheck =
+  | { ok: true; slot: Slot }
+  | { ok: false; reason: 'OUTSIDE_WORKING_HOURS' | 'BLOCKED' | 'NO_FREE_BAY' };
+
+/**
+ * Whether a walk-in can start at `query.startsAt` (invariant 3.6). Walk-ins skip the slot grid and
+ * the lead-time window, but must still fit inside one working-hours interval of the branch-local
+ * day (3.1), avoid availability blocks (3.2), and find a free bay (2.3).
+ */
+export function checkWalkInStart(query: WalkInQuery): WalkInCheck {
+  const range: TimeRange = {
+    startsAt: query.startsAt,
+    endsAt: new Date(query.startsAt.getTime() + query.durationMinutes * 60_000),
+  };
+  const date = localDateOf(query.startsAt, query.timeZone);
+  const weekday = dayOfWeekOf(date);
+  const insideHours = query.workingHours.some(
+    (interval) =>
+      interval.dayOfWeek === weekday &&
+      zonedTimeToUtc(date, interval.opensAtMinute, query.timeZone) <= range.startsAt &&
+      range.endsAt <= zonedTimeToUtc(date, interval.closesAtMinute, query.timeZone),
+  );
+  if (!insideHours) return { ok: false, reason: 'OUTSIDE_WORKING_HOURS' };
+  if (query.blocks.some((block) => overlaps(block, range))) return { ok: false, reason: 'BLOCKED' };
+
+  const freeBays = freeBaysFor(range, query.washBays, query.bookings);
+  if (freeBays.length === 0) return { ok: false, reason: 'NO_FREE_BAY' };
+  return { ok: true, slot: { ...range, freeBays } };
 }

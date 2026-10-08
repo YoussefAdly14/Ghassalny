@@ -54,7 +54,7 @@ A booking is valid only if all of these hold for its interval:
 1. Any transition not in the table is rejected.
 2. `NO_SHOW` is allowed only after `startsAt + NO_SHOW_GRACE_MINUTES` (15).
 3. Every status change, including creation, writes a `BookingStatusHistory` row **in the same transaction** with the previous status, new status, acting user, and optional reason.
-4. A customer may cancel only their own `CONFIRMED` booking before `startsAt - CUSTOMER_CANCEL_CUTOFF_MINUTES`. The exact cutoff is set by the cancellation policy (GHA-20).
+4. A customer may cancel only their own `CONFIRMED` booking, and only until `startsAt - CUSTOMER_CANCEL_CUTOFF_MINUTES` (5 hours). After that the customer calls the branch, and staff cancel it. A booking made less than 5 hours ahead can never be cancelled in the app.
 5. Workers may change bookings only at branches they are assigned to. Business admins may change bookings only within their organization.
 6. Leaving a capacity-holding status releases the bay immediately, so that time becomes bookable again.
 
@@ -74,18 +74,21 @@ A booking keeps working the same way when the catalog changes later.
 
 ## 8. Concurrency
 
-1. Create a booking inside one database transaction: check rules, pick a bay, insert the booking, insert the status history row.
-2. If two requests race for the same bay, the exclusion constraint rejects the second (`SQLSTATE 23P01`). The engine retries once with a fresh bay choice, then returns a `SLOT_UNAVAILABLE` error.
-3. Status changes use an optimistic check (`WHERE id = ? AND status = <expected>`) so two workers cannot apply conflicting transitions.
+1. Create a booking inside one database transaction: take the locks below, check rules, pick a bay, insert the booking, insert the status history row.
+2. Each creation transaction takes transaction-scoped advisory locks, always in this order: the customer (customer bookings only), then the branch. The customer lock stops parallel requests from racing past the customer limits in section 4. The branch lock serializes creation per branch, so each transaction sees every earlier booking and picks a free bay. Without it, concurrent inserts on one bay can deadlock inside the exclusion constraint check (verified against PostgreSQL 17).
+3. The exclusion constraint stays the final guard. If an insert is still rejected (`SQLSTATE 23P01`, or a deadlock), the engine retries once with a fresh bay choice, then returns a `SLOT_UNAVAILABLE` error.
+4. Status changes use an optimistic check (`WHERE id = ? AND status = <expected>`) so two workers cannot apply conflicting transitions.
 
 ## Engine defaults
 
-| Constant                           | Value | Notes                  |
-| ---------------------------------- | ----- | ---------------------- |
-| `MIN_LEAD_MINUTES`                 | 30    | Customer bookings only |
-| `BOOKING_HORIZON_DAYS`             | 14    |                        |
-| `MAX_ACTIVE_BOOKINGS_PER_CUSTOMER` | 3     |                        |
-| `NO_SHOW_GRACE_MINUTES`            | 15    |                        |
-| `CUSTOMER_CANCEL_CUTOFF_MINUTES`   | TBD   | Set by GHA-20          |
+| Constant                           | Value | Notes                              |
+| ---------------------------------- | ----- | ---------------------------------- |
+| `MIN_LEAD_MINUTES`                 | 30    | Customer bookings only             |
+| `BOOKING_HORIZON_DAYS`             | 14    |                                    |
+| `MAX_ACTIVE_BOOKINGS_PER_CUSTOMER` | 3     |                                    |
+| `NO_SHOW_GRACE_MINUTES`            | 15    |                                    |
+| `CUSTOMER_CANCEL_CUTOFF_MINUTES`   | 300   | 5 hours. Staff can cancel any time |
+| `WALK_IN_BACKDATE_MINUTES`         | 15    | How far back a walk-in may start   |
+| `MAX_BLOCK_DAYS`                   | 31    | Longest single availability block  |
 
 These are engine configuration values. They can move to per-branch settings once operators ask for it.

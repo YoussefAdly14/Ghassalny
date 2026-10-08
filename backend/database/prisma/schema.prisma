@@ -13,8 +13,8 @@
 // Rules the schema cannot express in Prisma (exclusion and check constraints) are added in
 // migration SQL. See docs/architecture/booking-engine-invariants.md.
 //
-// Enum values for UserRole, BookingStatus, BookingSource, and VehicleType must stay identical to
-// shared/contracts. src/enum-parity.ts fails typecheck if they drift.
+// Enum values for UserRole, BookingStatus, BookingSource, VehicleType, and AvailabilityBlockReason
+// must stay identical to shared/contracts. src/enum-parity.ts fails typecheck if they drift.
 
 generator client {
   provider     = "prisma-client"
