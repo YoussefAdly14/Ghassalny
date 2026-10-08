@@ -10,16 +10,16 @@ Ghassalny should begin as a compact, professional monorepo that can support a pi
 
 The planned apps are:
 
-- `apps/api`: backend API and domain services.
-- `apps/admin-web`: business admin and worker operations web interface.
-- `apps/mobile`: customer mobile app built with Expo React Native.
+- `backend/api`: backend API and domain services.
+- `frontend/admin-web`: business admin and worker operations web interface.
+- `frontend/mobile`: customer mobile app built with Expo React Native.
 
 The planned packages are:
 
-- `packages/database`: Prisma schema, migrations, seed data, and database client.
-- `packages/shared`: shared DTOs, enums, and domain contracts.
-- `packages/config`: typed environment and app configuration helpers.
-- `packages/ui`: shared UI primitives when reuse becomes worth it.
+- `backend/database`: Prisma schema, migrations, seed data, and database client.
+- `shared/contracts`: shared DTOs, enums, and domain contracts.
+- `shared/config`: typed environment and app configuration helpers.
+- `frontend/ui`: shared UI primitives when reuse becomes worth it.
 
 ## Backend Shape
 
@@ -47,7 +47,7 @@ The first schema should make tenant leakage hard by design:
 - Bookings belong to a branch and organization.
 - Admin queries must include organization scope.
 
-This is implemented in [`packages/database/prisma/schema.prisma`](../../packages/database/prisma/schema.prisma). Branch services, working hours, availability blocks, staff assignments, and bookings reference their branch and service through composite foreign keys on `(id, organization_id)`. PostgreSQL therefore rejects any row that links records from two different organizations.
+This is implemented in [`backend/database/prisma/schema.prisma`](../../backend/database/prisma/schema.prisma). Branch services, working hours, availability blocks, staff assignments, and bookings reference their branch and service through composite foreign keys on `(id, organization_id)`. PostgreSQL therefore rejects any row that links records from two different organizations.
 
 ### Data model
 

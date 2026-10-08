@@ -191,7 +191,7 @@ importers:
         specifier: ^8.71.1
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0))(typescript@6.0.3)
 
-  apps/api:
+  backend/api:
     dependencies:
       '@fastify/cors':
         specifier: ^11.3.0
@@ -204,13 +204,13 @@ importers:
         version: 11.2.0
       '@ghassalny/config':
         specifier: workspace:*
-        version: link:../../packages/config
+        version: link:../../shared/config
+      '@ghassalny/contracts':
+        specifier: workspace:*
+        version: link:../../shared/contracts
       '@ghassalny/database':
         specifier: workspace:*
-        version: link:../../packages/database
-      '@ghassalny/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../database
       dotenv:
         specifier: ^18.0.6
         version: 18.0.6
@@ -240,24 +240,14 @@ importers:
         specifier: ^5.0.3
         version: 5.0.3(@types/node@24.19.1)(vite@8.3.3(@types/node@24.19.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.23.15))
 
-  packages/config:
-    dependencies:
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.5
-    devDependencies:
-      typescript:
-        specifier: ~6.0.3
-        version: 6.0.3
-
-  packages/database:
+  backend/database:
     dependencies:
       '@ghassalny/config':
         specifier: workspace:*
-        version: link:../config
-      '@ghassalny/shared':
+        version: link:../../shared/config
+      '@ghassalny/contracts':
         specifier: workspace:*
-        version: link:../shared
+        version: link:../../shared/contracts
       '@prisma/adapter-pg':
         specifier: 7.10.0
         version: 7.10.0
@@ -287,7 +277,17 @@ importers:
         specifier: ~6.0.3
         version: 6.0.3
 
-  packages/shared:
+  shared/config:
+    dependencies:
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
+    devDependencies:
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
+
+  shared/contracts:
     devDependencies:
       '@ghassalny/config':
         specifier: workspace:*

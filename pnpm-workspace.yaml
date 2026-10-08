@@ -1,6 +1,7 @@
 packages:
-  - apps/*
-  - packages/*
+  - backend/*
+  - frontend/*
+  - shared/*
 
 # React Native and Expo resolve native modules most reliably from a flat
 # node_modules tree. See docs/development/workspace-conventions.md.

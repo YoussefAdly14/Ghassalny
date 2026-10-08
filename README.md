@@ -25,17 +25,20 @@ Foundation. The monorepo, multi-tenant database, and API are in place, along wit
 
 ## Repository Layout
 
+The code is grouped by layer ([ADR 0005](docs/adr/0005-layered-folder-layout.md)):
+
 ```
-apps/
-  api/          Backend API (Fastify): auth, access control, availability engine
-  admin-web/    Next.js admin and worker app (placeholder)
-  mobile/       Expo customer iOS app (placeholder)
-packages/
-  config/       Constants, typed env parsing, TypeScript base configs
-  database/     Prisma schema, migrations, client (server-only)
-  shared/       Domain enums and contracts shared by every app
-  ui/           Reserved for shared design tokens and components
-docs/           Product, architecture, ADRs, development guides
+backend/                Runs on the server
+  api/                  Fastify API: auth, access control, availability engine
+  database/             Prisma schema, migrations, seed data, database client
+frontend/               Runs on users' devices
+  mobile/               Expo customer iOS app (placeholder)
+  admin-web/            Next.js admin and worker website (placeholder)
+  ui/                   Shared design tokens and components (placeholder)
+shared/                 Used by both backend and frontend
+  contracts/            Domain enums and API request/response types
+  config/               Constants, typed env parsing, TypeScript base configs
+docs/                   Product, architecture, ADRs, development guides
 ```
 
 ## Quick Start
@@ -45,7 +48,7 @@ Requires Node.js 24, Docker Desktop (running), and pnpm through Corepack. The fu
 ```sh
 corepack enable pnpm
 pnpm install
-cp packages/database/.env.example packages/database/.env
+cp backend/database/.env.example backend/database/.env
 pnpm db:up
 pnpm db:migrate
 pnpm typecheck
@@ -80,6 +83,7 @@ Architecture
 - [ADR 0002: pnpm Workspaces with Turborepo](docs/adr/0002-pnpm-turborepo-workspace.md)
 - [ADR 0003: Free-First Authentication](docs/adr/0003-free-first-authentication.md)
 - [ADR 0004: Fastify for the API](docs/adr/0004-fastify-api-framework.md)
+- [ADR 0005: Layered Folder Layout](docs/adr/0005-layered-folder-layout.md)
 - [Booking Engine Invariants](docs/architecture/booking-engine-invariants.md)
 - [ADR Template](docs/adr/template.md)
 

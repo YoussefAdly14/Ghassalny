@@ -9,5 +9,5 @@ pnpm-lock.yaml
 **/.turbo/
 **/ios/
 **/android/
-packages/database/src/generated/
-packages/database/prisma/migrations/
+backend/database/src/generated/
+backend/database/prisma/migrations/

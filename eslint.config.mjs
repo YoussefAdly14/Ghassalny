@@ -18,8 +18,8 @@ export default defineConfig([
     '**/.turbo/',
     '**/ios/',
     '**/android/',
-    'packages/database/src/generated/',
-    'packages/database/prisma/migrations/',
+    'backend/database/src/generated/',
+    'backend/database/prisma/migrations/',
   ]),
   js.configs.recommended,
   tseslint.configs.recommended,
@@ -35,8 +35,53 @@ export default defineConfig([
     },
   },
   {
-    files: ['**/*.{js,mjs,cjs}', '**/*.config.ts', 'packages/database/**/*.ts'],
+    files: ['**/*.{js,mjs,cjs}', '**/*.config.ts', 'backend/database/**/*.ts'],
     languageOptions: { globals: globals.node },
+  },
+  // Layer boundaries (ADR 0005): server-only code must never reach devices, and shared code
+  // must not depend on either side.
+  {
+    files: ['frontend/**/*.{ts,tsx,js,jsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '@ghassalny/api',
+                '@ghassalny/api/*',
+                '@ghassalny/database',
+                '@ghassalny/database/*',
+              ],
+              message: 'Frontend code must not import backend packages. Use @ghassalny/contracts.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['shared/**/*.{ts,tsx,js,jsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '@ghassalny/api',
+                '@ghassalny/database',
+                '@ghassalny/mobile',
+                '@ghassalny/admin-web',
+                '@ghassalny/ui',
+              ],
+              message: 'Shared packages must not depend on backend or frontend packages.',
+            },
+          ],
+        },
+      ],
+    },
   },
   prettier,
 ]);

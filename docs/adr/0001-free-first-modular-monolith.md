@@ -26,7 +26,7 @@ The backend will be organized around domain modules:
 
 Each backend module should expose a small public interface and keep its business rules in services. Database access should sit behind repositories or narrowly scoped data-access adapters. API boundaries should validate input through DTOs or schemas before calling domain services.
 
-The monorepo will eventually use this shape:
+The monorepo will eventually use this shape. (Superseded by [ADR 0005](0005-layered-folder-layout.md), which groups these under `backend/`, `frontend/`, and `shared/`.)
 
 - apps/api
 - apps/admin-web

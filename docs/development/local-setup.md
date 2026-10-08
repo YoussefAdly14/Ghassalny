@@ -33,8 +33,8 @@ Check it with `pnpm --version`. It should print the version from the root `packa
 
 ```sh
 pnpm install                 # installs every workspace
-cp packages/database/.env.example packages/database/.env
-cp apps/api/.env.example apps/api/.env
+cp backend/database/.env.example backend/database/.env
+cp backend/api/.env.example backend/api/.env
 pnpm db:up                   # starts PostgreSQL 17 in Docker and waits until healthy
 pnpm db:migrate              # applies migrations to the local database
 pnpm typecheck               # generates the Prisma client and type-checks everything
@@ -78,7 +78,7 @@ The customer app targets iOS first.
 
 1. Install **Expo Go** on your iPhone.
 2. Put the phone and the computer on the same Wi-Fi network.
-3. In `apps/mobile/.env`, set `EXPO_PUBLIC_API_URL` to your computer's **LAN IP** (find it with `ipconfig`), for example `http://192.168.1.20:4000`. `localhost` on the phone means the phone itself.
+3. In `frontend/mobile/.env`, set `EXPO_PUBLIC_API_URL` to your computer's **LAN IP** (find it with `ipconfig`), for example `http://192.168.1.20:4000`. `localhost` on the phone means the phone itself.
 4. Allow Node.js through Windows Firewall on private networks when prompted.
 5. Run the mobile dev command and scan the QR code with the iPhone Camera app.
 

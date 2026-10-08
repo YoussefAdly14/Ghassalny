@@ -16,7 +16,7 @@ Use **Fastify 5** with plain TypeScript modules:
 
 - `src/app.ts` builds the app from explicit dependencies (database, clock, config), so tests can pass fakes.
 - One folder per domain module (`auth`, `users`, `access`, `availability`, ...). Each has routes (validate and delegate), a service (business rules), and a repository (Prisma queries).
-- Request bodies and queries are validated with Zod through a small `parseInput` helper. Errors use one JSON shape: `{ "error": { "code", "message", "details"? } }` (see `@ghassalny/shared`).
+- Request bodies and queries are validated with Zod through a small `parseInput` helper. Errors use one JSON shape: `{ "error": { "code", "message", "details"? } }` (see `@ghassalny/contracts`).
 - Security plugins: `@fastify/helmet`, `@fastify/cors`, `@fastify/rate-limit`.
 - Development runs with `tsx watch`. Production is bundled with `tsup` into `dist/server.js`.
 - Tests use Vitest. Route tests use Fastify's built-in `inject` and don't open a network port.

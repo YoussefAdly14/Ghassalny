@@ -4,20 +4,27 @@ Related Linear issues: GHA-23, GHA-24, GHA-25, GHA-26, GHA-27
 
 ## Layout
 
+The repository is grouped by layer ([ADR 0005](../adr/0005-layered-folder-layout.md)):
+
 ```
-apps/
-  api/          Backend modular monolith (Node.js)
-  admin-web/    Next.js admin and worker web app
-  mobile/       Expo customer app, iOS first
-packages/
-  config/       Constants, env parsing, TypeScript base configs
-  database/     Prisma schema, migrations, client (server-only)
-  shared/       Domain enums and contracts (dependency-free)
-  ui/           Reserved for shared design tokens and components
-docs/           Product, architecture, ADRs, development guides
+backend/                          Server-side code. Never shipped to devices.
+  api/          @ghassalny/api        Fastify modular monolith
+  database/     @ghassalny/database   Prisma schema, migrations, seed, client
+frontend/                         Code that runs on users' devices.
+  mobile/       @ghassalny/mobile     Expo customer app, iOS first
+  admin-web/    @ghassalny/admin-web  Next.js admin and worker website
+  ui/           @ghassalny/ui         Shared design tokens and components
+shared/                           Code used by both backend and frontend.
+  contracts/    @ghassalny/contracts  Domain enums and API types (dependency-free)
+  config/       @ghassalny/config     Constants, env parsing, TypeScript base configs
+docs/                             Product, architecture, ADRs, development guides
 ```
 
 A folder becomes a workspace member when it has a `package.json`. All packages use the `@ghassalny/` scope.
+
+Dependency direction is one way: `frontend/*` and `backend/*` may import from `shared/*`. `shared/*` never imports from either. `frontend/*` never imports from `backend/*`.
+
+Inside each app, code is split by feature module, not by file type. For example, `backend/api/src/modules/auth/` holds the auth routes, service, repository, schemas, and tests together.
 
 ## Package manager
 
@@ -46,14 +53,14 @@ Per-package scripts use the same names (`dev`, `build`, `typecheck`, `test`) so 
 
 ## TypeScript
 
-Base configs live in `packages/config/tsconfig/`. Every package's `tsconfig.json` extends one of them:
+Base configs live in `shared/config/tsconfig/`. Every package's `tsconfig.json` extends one of them:
 
-| Extend                                         | When                                                                                                                          |
-| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `@ghassalny/config/tsconfig/library.json`      | Platform-neutral packages (`shared`, `config`)                                                                                |
-| `@ghassalny/config/tsconfig/node.json`         | `apps/api`, `packages/database`                                                                                               |
-| `@ghassalny/config/tsconfig/nextjs.json`       | `apps/admin-web`                                                                                                              |
-| `@ghassalny/config/tsconfig/react-native.json` | `apps/mobile`, combined with Expo's base: `"extends": ["expo/tsconfig.base", "@ghassalny/config/tsconfig/react-native.json"]` |
+| Extend                                         | When                                                                                                                              |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `@ghassalny/config/tsconfig/library.json`      | Platform-neutral packages (`shared`, `config`)                                                                                    |
+| `@ghassalny/config/tsconfig/node.json`         | `backend/api`, `backend/database`                                                                                                 |
+| `@ghassalny/config/tsconfig/nextjs.json`       | `frontend/admin-web`                                                                                                              |
+| `@ghassalny/config/tsconfig/react-native.json` | `frontend/mobile`, combined with Expo's base: `"extends": ["expo/tsconfig.base", "@ghassalny/config/tsconfig/react-native.json"]` |
 
 The base config is strict, including `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, and `isolatedModules`. Bundler-style module resolution is used everywhere. TypeScript is pinned to 6.0, the version Expo SDK 57 ships with and the newest that typescript-eslint supports.
 
@@ -61,20 +68,20 @@ TypeScript 6 no longer loads every `@types/*` package automatically. Add the one
 
 ### Import aliases
 
-**Workspace package names are the alias system.** Import shared code as `@ghassalny/shared`, never as `../../packages/shared/src`.
+**Workspace package names are the alias system.** Import shared code as `@ghassalny/contracts`, never as `../../shared/contracts/src`.
 
 - Internal packages export TypeScript source directly (`"exports": { ".": "./src/index.ts" }`). There is no build step, and edits show up immediately in every app.
 - Metro (Expo), Next.js (`transpilePackages`), and the API bundler compile that source for each platform.
 - Do not add `compilerOptions.paths` aliases across packages. Metro, Next.js, and Node each need separate configuration to honour them, and they drift.
-- An app may add its own local alias (for example `@/` pointing at `apps/mobile/src`) as long as it is configured for both TypeScript and that app's bundler.
+- An app may add its own local alias (for example `@/` pointing at `frontend/mobile/src`) as long as it is configured for both TypeScript and that app's bundler.
 
 ### Package boundaries
 
-| Package               | May be imported by | Must not depend on               |
-| --------------------- | ------------------ | -------------------------------- |
-| `@ghassalny/shared`   | everything         | any runtime dependency           |
-| `@ghassalny/config`   | everything         | app code; only `zod` at runtime  |
-| `@ghassalny/database` | `apps/api` only    | client apps must never import it |
+| Package                | May be imported by | Must not depend on               |
+| ---------------------- | ------------------ | -------------------------------- |
+| `@ghassalny/contracts` | everything         | any runtime dependency           |
+| `@ghassalny/config`    | everything         | app code; only `zod` at runtime  |
+| `@ghassalny/database`  | `backend/api` only | client apps must never import it |
 
 ## Linting and formatting
 
@@ -88,13 +95,13 @@ TypeScript 6 no longer loads every `@types/*` package automatically. Add the one
 
 Every app has a committed `.env.example`. Real `.env` files are gitignored.
 
-| File                             | Read by                             | Copy to      |
-| -------------------------------- | ----------------------------------- | ------------ |
-| `.env.example`                   | Docker Compose (optional overrides) | `.env`       |
-| `packages/database/.env.example` | Prisma CLI                          | `.env`       |
-| `apps/api/.env.example`          | API                                 | `.env`       |
-| `apps/admin-web/.env.example`    | Next.js                             | `.env.local` |
-| `apps/mobile/.env.example`       | Expo                                | `.env`       |
+| File                              | Read by                             | Copy to      |
+| --------------------------------- | ----------------------------------- | ------------ |
+| `.env.example`                    | Docker Compose (optional overrides) | `.env`       |
+| `backend/database/.env.example`   | Prisma CLI                          | `.env`       |
+| `backend/api/.env.example`        | API                                 | `.env`       |
+| `frontend/admin-web/.env.example` | Next.js                             | `.env.local` |
+| `frontend/mobile/.env.example`    | Expo                                | `.env`       |
 
 Rules:
 
